@@ -1,15 +1,4 @@
-#pragma once
-//#include "lib.h"
-
-// -----------------------------------------------------------------
-//
-//                           USING
-//
-//------------------------------------------------------------------
-
-using ip = std::array<uint8_t, 4>;
-using ip_pool = std::vector<ip>;
-using ip_pool_ci = ip_pool::const_iterator;
+#include "lib.h"
 
 // -----------------------------------------------------------------
 //
@@ -111,9 +100,9 @@ bool output_hash_is_equal() // no parameters; should be an independent module
 	
 	fs.close(); fs.open("test_file.tst", std::fstream::out); // fout mode
 	
-	testpool.shrink_to_fit();
-	std::sort(testpool.rbegin(), test.rend());
-	print(fs, testpool);
+	test.shrink_to_fit();
+	std::sort(test.rbegin(), test.rend());
+	print(fs, test);
 	print_if_begins_with(fs, test, 1);
 	print_if_begins_with(fs, test, 46, 70);
 	print_if_includes(fs, test, 46);
