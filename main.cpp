@@ -1,6 +1,6 @@
 #include "lib.h"
 
-int main(int argc, char* argv[])
+int main()
 {
 	ip_pool pool; // container
 	populate(std::cin, pool); // fills the container with quad-bytes using the IP scheme X.X.X.X, where X = [0-255]
