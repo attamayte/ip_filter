@@ -28,12 +28,12 @@ ip get_ip(std::string& str);
 void populate(std::istream& is, ip_pool& pool);
 
 // format and output
-inline void out(std::ostream& os, const ip& i);
+void out(std::ostream& os, const ip& i);
 
-inline void print(std::ostream& os, ip_pool_ci begin, ip_pool_ci end);
+void print(std::ostream& os, ip_pool_ci begin, ip_pool_ci end);
 
 // a better-looking print call
-inline void print(std::ostream& os, const ip_pool& pool);
+void print(std::ostream& os, const ip_pool& pool);
 
 // filter 1 (& clojure for filter 2)
 void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const int pos, const char byte);
@@ -44,7 +44,7 @@ void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const i
 
 // this fires both variadic filters
 template<typename... Args>
-inline void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes);
+void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes);
 
 // filter 3 (lazy one)
 void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t byte);

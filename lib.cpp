@@ -1,15 +1,4 @@
-#pragma once
-//#include "lib.h"
-
-// -----------------------------------------------------------------
-//
-//                           USING
-//
-//------------------------------------------------------------------
-
-using ip = std::array<uint8_t, 4>;
-using ip_pool = std::vector<ip>;
-using ip_pool_ci = ip_pool::const_iterator;
+#include "lib.h"
 
 // -----------------------------------------------------------------
 //
@@ -35,7 +24,7 @@ void populate(std::istream& is, ip_pool& pool)
 }
 
 // format and output
-inline void out(std::ostream& os, const ip& i)
+void out(std::ostream& os, const ip& i)
 {
 	os
 		<< +i[0] << '.'
@@ -44,14 +33,14 @@ inline void out(std::ostream& os, const ip& i)
 		<< +i[3] << '\n';
 }
 
-inline void print(std::ostream& os, ip_pool_ci begin, ip_pool_ci end)
+void print(std::ostream& os, ip_pool_ci begin, ip_pool_ci end)
 {
 	while (begin != end)
 		out(os, *begin++);
 }
 
 // a better-looking print call
-inline void print(std::ostream& os, const ip_pool& pool)
+void print(std::ostream& os, const ip_pool& pool)
 {
 	auto begin = pool.begin(), end = pool.end();
 	print(os, begin, end);
@@ -78,7 +67,7 @@ void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const i
 
 // this fires both variadic filters
 template<typename... Args>
-inline void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes)
+void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes)
 {
 	const int pos = 0; // wrapping up the searching position;
 	// (!) must be incremented after each variadic iteration (!)
@@ -111,9 +100,9 @@ bool output_hash_is_equal() // no parameters; should be an independent module
 	
 	fs.close(); fs.open("test_file.tst", std::fstream::out); // fout mode
 	
-	testpool.shrink_to_fit();
-	std::sort(testpool.rbegin(), test.rend());
-	print(fs, testpool);
+	test.shrink_to_fit();
+	std::sort(test.rbegin(), test.rend());
+	print(fs, test);
 	print_if_begins_with(fs, test, 1);
 	print_if_begins_with(fs, test, 46, 70);
 	print_if_includes(fs, test, 46);
