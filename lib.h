@@ -35,19 +35,12 @@ void print(std::ostream& os, ip_pool_ci begin, ip_pool_ci end);
 // a better-looking print call
 void print(std::ostream& os, const ip_pool& pool);
 
-// filter 1 (& clojure for filter 2)
-void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const int pos, const char byte);
-
-// filter 2
+// variadic filter (filter 1 + filter 2)
 template<typename... Args>
-void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const int pos, const char byte, Args... bytes);
+void print_if_begins_with(std::ostream& os, const ip_pool& pool, const uint8_t byte, Args... bytes);
 
-// this fires both variadic filters
-template<typename... Args>
-void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes);
-
-// filter 3 (lazy one)
-void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t byte);
+// filter 3 (REWORKED)
+void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t target);
 
 // -----------------------------------------------------------------
 //
