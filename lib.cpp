@@ -46,39 +46,25 @@ void print(std::ostream& os, const ip_pool& pool)
 	print(os, begin, end);
 }
 
-// filter 1 (& clojure for filter 2)
-void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const int pos, const char byte)
+// variadic filter (filter 1 + filter 2)
+template<typename... Args>
+void print_if_begins_with(std::ostream& os, const ip_pool& pool, const uint8_t byte, Args... bytes)
 {
-	ip target; target[pos] = byte; // temporary object for comparison
-	auto r = std::equal_range(begin, end, target,
-		[=](const ip& a, const ip& b) {return a[pos] > b[pos]; }); // using > because the container is sorted in reverse order
+	std::pair<ip_pool_ci, ip_pool_ci> r{ pool.begin(), pool.end() };
+	ip target{ byte, (uint8_t)bytes... };
+
+	for (size_t pos = 0; pos < (1 + sizeof...(bytes)); ++pos)
+		r = std::equal_range(r.first, r.second, target, [=](const ip& a, const ip& b) {return a[pos] > b[pos]; });
+
 	print(os, r.first, r.second);
 }
 
-// filter 2
-template<typename... Args>
-void variadic_filter(std::ostream& os, ip_pool_ci begin, ip_pool_ci end, const int pos, const char byte, Args... bytes)
+// filter 3 (REWORKED)
+void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t target)
 {
-	ip target; target[pos] = byte; // temporary object for comparison
-	auto r = std::equal_range(begin, end, target,
-		[=](const ip& a, const ip& b) {return a[pos] > b[pos]; }); // using > because the container is sorted in reverse order
-	variadic_filter(os, r.first, r.second, pos + 1, bytes...);
-}
-
-// this fires both variadic filters
-template<typename... Args>
-void print_if_begins_with(std::ostream& os, const ip_pool& pool, const char byte, Args... bytes)
-{
-	const int pos = 0; // wrapping up the searching position;
-	// (!) must be incremented after each variadic iteration (!)
-	variadic_filter(os, pool.begin(), pool.end(), pos, byte, bytes...);
-}
-
-// filter 3 (lazy one)
-void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t byte)
-{
-	std::for_each(pool.begin(), pool.end(),
-		[&os, byte] (const ip& a) {if (a[0] == byte || a[1] == byte || a[2] == byte || a[3] == byte) out(os, a);} );
+	for (const auto& p : pool)
+		if (std::any_of(p.begin(), p.end(), [=](uint8_t mybyte) {return mybyte == target; }))
+			out(os, p);
 }
 
 // -----------------------------------------------------------------
@@ -93,34 +79,35 @@ void print_if_includes(std::ostream& os, const ip_pool& pool, const uint8_t byte
 
 bool output_hash_is_equal() // no parameters; should be an independent module
 {
-	std::fstream fs("ip_filter.tsv", std::fstream::in); // fin mode
+	std::fstream fs("ip_filter.tsv", std::fstream::in);
 	// replicating main() behavior
 	ip_pool test;
 	populate(fs, test);
-	
-	fs.close(); fs.open("test_file.tst", std::fstream::out); // fout mode
-	
 	test.shrink_to_fit();
-	std::sort(test.rbegin(), test.rend());
+	
+	fs.close(); fs.open("test_file.tst", std::fstream::out);
+
+	std::sort(test.begin(), test.end(), std::greater<ip>());
+	
 	print(fs, test);
 	print_if_begins_with(fs, test, 1);
 	print_if_begins_with(fs, test, 46, 70);
 	print_if_includes(fs, test, 46);
 
-	fs.close(); fs.open("test_file.tst", std::fstream::in); // fin mode
-	
+	fs.close(); fs.open("test_file.tst", std::fstream::in);
+
 	std::string test_file; // container for test file
 	for (std::string line; std::getline(fs, line); )
 		test_file += line;
-	
-	fs.close(); fs.open("ip_filter.tst", std::fstream::in); // fin mode
-	
+
+	fs.close(); fs.open("ip_filter.tst", std::fstream::in);
+
 	std::string ref_file; // container for reference file
 	for (std::string line; std::getline(fs, line); )
 		ref_file += line;
-	
+
 	fs.close();
 
-	std::hash<std::string> hash; 
+	std::hash<std::string> hash;
 	return (hash(test_file) == hash(ref_file));
 }
